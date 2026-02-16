@@ -1,0 +1,33 @@
+name: Build Android APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Make Gradlew Executable
+        run: chmod +x gradlew # This is the step that was failing before
+
+      - name: Build APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload Finished APK
+        uses: actions/upload-artifact@v4      - name: Set up JDK 17
+        uses: actions/setup-java@v4 # Use the latest v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle # This makes future builds much faster
+
+        with:
+          name: my-app-bundle
+          path: app/build/outputs/apk/debug/*.apk
