@@ -16,7 +16,6 @@ jobs:
 
       - name: 3. Create Build Files
         run: |
-          # This creates the absolute minimum files needed to build
           gradle wrapper
           if [ ! -f "build.gradle" ] && [ ! -f "build.gradle.kts" ]; then
             echo "plugins { id 'com.android.application' }" > build.gradle
@@ -25,10 +24,10 @@ jobs:
       - name: 4. Build APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug || echo "Build failed, but continuing to check for files"
+          ./gradlew assembleDebug --stacktrace || echo "Build failed, but checking for files"
 
       - name: 5. Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-app-apk
-          path: "**/*.apk
+          path: "**/*.apk"
