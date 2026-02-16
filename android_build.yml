@@ -1,0 +1,37 @@
+name: Ultimate Android Build
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Get Your Code
+        uses: actions/checkout@v4
+
+      - name: 2. Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 3. Find and Repair Project
+        run: |
+          # This finds where your 'build.gradle' file is hiding
+          GRADLE_PATH=$(find . -name "build.gradle*" -not -path "*/.*" | head -n 1 | xargs dirname)
+          echo "Found project in: $GRADLE_PATH"
+          cd "$GRADLE_PATH"
+          gradle wrapper # Generates the missing build tools automatically
+          chmod +x gradlew
+          
+          # 4. Attempt the Build
+          ./gradlew assembleDebug
+          
+          # 5. Move APK to a known location for download
+          mkdir -p $GITHUB_WORKSPACE/output_apk
+          find . -name "*.apk" -exec cp {} $GITHUB_WORKSPACE/output_apk/ \;
+
+      - name: 6. Download Your APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: output_apk/*.apk
